@@ -1,4 +1,4 @@
-let linkTest = "https://en.wikipedia.org/wiki/Enigma_machine";
+let linkTest = "https://en.wikipedia.org/wiki/Enigma_machinekuguyefvytyf342";
 
 // Значения символов в буквенно-цифровом кодировании.
 const characterValuesInAlphanumericEncoding = {
@@ -300,6 +300,49 @@ function CreationOfCorrectionBytes(arrBytes, qrCodeVersion) {
     return arrBytesCorrections
 }
 
+// Объединение блоков
+function combiningBlocks(arrBytes, arrBytesCorrections, qrCodeVersion) {
+    arrBytes.map((arrByte, key) => {
+        arrBytes[key] = arrByte.match(/.{1,8}/g);
+    })
+
+    arrBytesCorrections.map((arrByte, key) => {
+        arrBytesCorrections[key] = arrByte;
+
+        arrByte.map((byte, key) => {
+            arrByte[key] = byte.toString(2);
+            arrByte[key] = new Array(8 - arrByte[key].length).fill(0).concat(arrByte[key]).join('');
+        })
+    })
+
+    let arrByteCode = new Array();
+
+    for (let i=0, j=0; j<arrBytes[arrBytes.length-1].length; i++) {
+        if (arrBytes[i][j] === undefined) {
+            continue
+        }
+
+        arrByteCode.push(arrBytes[i][j])
+
+        if (i==3) {
+            i=-1; 
+            j++
+        }
+    }
+
+    for (let i=0, j=0; j<arrBytesCorrections[0].length; i++) {
+
+        arrByteCode.push(arrBytesCorrections[i][j])
+
+        if (i==3) {
+            i=-1; 
+            j++
+        }
+    }
+
+    return arrByteCode
+}
+
 function main() {
     let linkBitString = AlphanumericCoding(linkTest);
     let qrCodeVersion = AddingServiceInformation(linkBitString.length);
@@ -308,8 +351,10 @@ function main() {
     qrCodeVersion = serviceFields[1];
     linkBitString = filling(linkBitString, qrCodeVersion);
     let arrBytes = dividingInformationIntoBlocks(linkBitString, qrCodeVersion);
-    arrBytesCorrections = CreationOfCorrectionBytes(arrBytes, qrCodeVersion)
-    console.log(arrBytes, arrBytesCorrections, qrCodeVersion)
+    arrBytesCorrections = CreationOfCorrectionBytes(arrBytes, qrCodeVersion);
+    let arrByteCode = combiningBlocks(arrBytes, arrBytesCorrections, qrCodeVersion);
+
+    console.log(arrByteCode)
 }
 
 main()
